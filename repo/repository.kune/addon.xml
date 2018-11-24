@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.kune" name="Kune Add-ons Repository" version="0.0.2" provider-name="Kuneguri">
+	<extension point="xbmc.addon.repository" name="Kune Add-ons Repository">
+        <info compressed="false">https://raw.githubusercontent.com/Kuneguri/kuneguri.github.io/master/addons/zips/addons.xml</info>
+        <checksum>https://raw.githubusercontent.com/Kuneguri/kuneguri.github.io/master/addons/zips/addons.xml.md5</checksum>
+        <datadir zip="true">https://raw.githubusercontent.com/Kuneguri/kuneguri.github.io/master/addons/zips</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Kune Add-ons Repository</summary>
+		<description>Just another repository for Kodi addons. Use this for the Quantum Video Add-on..</description>
+		<disclaimer></disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
