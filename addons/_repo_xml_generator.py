@@ -7,6 +7,7 @@
 
 """ Recoded by whufclee (info@totalrevolution.tv) """
 
+import time
 import re
 import os
 import shutil
@@ -43,6 +44,7 @@ class Generator:
             print "NEW ADD-ON - Creating zip for: %s v.%s" % (addon_id,version)
             zip = zipfile.ZipFile(final_zip, 'w', compression=zipfile.ZIP_DEFLATED )
             root_len = len(os.path.dirname(os.path.abspath(addon_id)))
+            empty_dirs = list()
             for root, dirs, files in os.walk(addon_id):
                 archive_root = os.path.abspath(root)[root_len:]
 
@@ -50,8 +52,13 @@ class Generator:
                         fullpath = os.path.join( root, f )
                         archive_name = os.path.join( archive_root, f )
                         zip.write( fullpath, archive_name, zipfile.ZIP_DEFLATED )
+                for dir in dirs:
+                    zif = zipfile.ZipInfo(os.path.join(root, dir) + "/")
+                    zif.external_attr = 0100755 << 16L
+                    zif.date_time = time.localtime()
+                    zip.writestr(zif, '')
             zip.close()
-            
+
 # Copy over the icon, fanart and addon.xml to the zip directory
             copyfiles = ['icon.png','fanart.jpg','addon.xml']
             files = os.listdir(addon_id)
