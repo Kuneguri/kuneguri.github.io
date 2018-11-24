@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.quantum" version="0.0.1b" name="Quantum Video Add-on" provider-name="Kuneguri">
+<addon id="plugin.video.quantum" version="0.0.2b" name="Quantum Video Add-on" provider-name="Kuneguri">
 <requires>
   <import addon="xbmc.python" version="2.25.0"/>
   <import addon="script.module.requests" />
