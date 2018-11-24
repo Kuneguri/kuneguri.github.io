@@ -1,0 +1,10 @@
+# FIX:
+- DONE - When selecting the media, we need to access the page and download the info for updates, otherwise we will never find new episodes!!!
+
+# TODO
+- Save search terms     --> DONE 
+- Add the 'latest' section for Masteranime      --> DONE
+- Add to favorites (create a favorites section in the addon... the Kodi one is crap) (Change this folder's view to big icons/thumbnails?)
+- Add providers
+- Mark videos as 'Watched' properly and keep a section for 'watched' on the addon (nice?)
+-  
