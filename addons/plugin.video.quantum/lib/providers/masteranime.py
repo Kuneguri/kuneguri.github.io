@@ -362,7 +362,8 @@ def playVideo(params):
         return
     vidURL = selectVidQuality(playlist)
     if vidURL:
-        core.execbuiltin('xbmc.PlayMedia("{0}")'.format(vidURL))
+        core.execbuiltin('PlayMedia("{0}")'.format(vidURL))
+        return
         #core.execbuiltin('Action(Fullscreen)')
     else:
         # User canceled the quality menu
@@ -407,7 +408,7 @@ def selectVidQuality(playlist):
         return
 
     if 'm3u8' in vidURL:
-        core.execbuiltin('Notification("Downloading m3u8", "Note: m3u8 streams suck")')
+        #core.execbuiltin('Notification("Downloading m3u8", "Note: m3u8 streams suck")')
         vidURL = core.m3uDownload(vidURL)
 
     return vidURL

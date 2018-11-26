@@ -16,6 +16,7 @@
 # Native
 import sys
 import os
+import shutil
 
 # Quantum
 import lib.core.quantum as core
@@ -24,6 +25,11 @@ from lib.controllers import controllers
 def main(params):
     params = dict(core.parse_qsl(params))
     logger.debug(params)
+
+    if params.get('action') == 'test':
+        url = '/Users/carmofl/Library/Application Support/Kodi/userdata/addon_data/plugin.video.quantum/temp/playlist-1543139132.09.m3u8/index-v1-a1.m3u8'
+        core.execbuiltin('PlayMedia("{url}")'.format(url=url))
+        return
 
     if not params:
         mainMenu()
@@ -49,13 +55,19 @@ def mainMenu():
         params = { 'media': mediaId }
         url = core.getURL(params)
         listItem = core.listItem(label=mediaType)
+        listItem.setArt( core.defaultArt )
         isFolder = True
         core.addDirectoryItem(core.handle, url, listItem, isFolder)
     core.addSeparator()
     addTools()
 
+    url = core.getURL( { 'action': 'test' } )
+    listItem = core.listItem('Test m3u8')
+    core.addDirectoryItem(core.handle, url, listItem, False)
+
 def toolsMenu(params):
     action = params.get('action')
+    localParams = dict(params)
 
     if action == 'list':
         # View Logfile
@@ -96,7 +108,11 @@ def toolsMenu(params):
         count = 0
         for f in os.listdir(tmpDir):
             count += 1
-            os.unlink(os.path.join(tmpDir, f))
+            fullPath = os.path.join(tmpDir, f)
+            if os.path.isdir( fullPath ):
+                shutil.rmtree( fullPath )
+            else:
+                os.unlink( fullPath )
         core.execbuiltin('Notification("TempDir cleared", "{0} files removed")'.format(count))
 
     elif action == 'clear-log':
@@ -110,6 +126,7 @@ def addTools():
     localParams = { 'action': 'list', 'media': 'tools' }
     url = core.getURL(localParams)
     listItem = core.listItem(label='Quantum Tools')
+    listItem.setArt( core.defaultArt )
     core.addDirectoryItem(core.handle, url, listItem, True)
 
 if __name__ == '__main__':
