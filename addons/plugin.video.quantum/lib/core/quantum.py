@@ -166,7 +166,7 @@ def displayTextFile(title, filePath):
 def m3uDownload(url, downloadToDisk=True):
     import lib.utils.net as net
     tempFile = 'playlist-{0}.m3u8'.format(str(time.time()))
-    if downloadToDisk:      # This doesn't work... but why?
+    if downloadToDisk:      # This doesn't work... but why? - lots of work, but might be worth it to avoid fucking buffering/stall
         localPath = getTempFilePath(tempFile, makedir=True)
         localFile = os.path.join( localPath, tempFile )
         data = net.get(url)
@@ -195,7 +195,8 @@ def m3uDownload(url, downloadToDisk=True):
                         #urlList.append( '{streamRoot}{indexFile}'.format(streamRoot=streamRoot, indexFile=line) )
                         m3uQueue.put( '{streamRoot}{indexFile}'.format(streamRoot=streamRoot, indexFile=line) )
                         total += 1
-                    fw.write('{0}\n'.format(line))
+                    # For whatever reason.. I can't play local files using jpg but .ts works fine (iframe stuff?)
+                    fw.write('{0}\n'.format(line.replace('.jpg', '.ts')))
         pd = pDialog
         pd.create('Downloading chunks', 'Loading...')
         pd.update(0)
@@ -212,6 +213,7 @@ def m3uDownload(url, downloadToDisk=True):
         m3uQueue.join()
         pd.close()
         #return localFile
+        time.sleep(3)
         return indexFile
     else:
         localFile = getTempFilePath(tempFile)
@@ -233,7 +235,7 @@ def downloaderThread(dstPath, pDlg, total):
         qsize = m3uQueue.qsize()
         logger.debug('Initiated thread. Queue size: {0}'.format(qsize))
         #url = m3uQueue.get()
-        fileName = re.sub('.*/', '', url)
+        fileName = re.sub('.*/', '', url).replace('.jpg', '.ts')
         filePath = os.path.join(dstPath, fileName)
         data = net.get(url, timeout=10)
         pDlg.update(int(qsize), 'Remaining chunks: {0}'.format(qsize))

@@ -27,9 +27,9 @@ def main(params):
     logger.debug(params)
 
     if params.get('action') == 'test':
-        url = '/Users/carmofl/Library/Application Support/Kodi/userdata/addon_data/plugin.video.quantum/temp/playlist-1543139132.09.m3u8/index-v1-a1.m3u8'
+        url = '/Users/carmofl/Library/Application Support/Kodi/userdata/addon_data/plugin.video.quantum/temp/playlist-1543194477.32.m3u8/index-v1-a1.m3u8'
         core.execbuiltin('PlayMedia("{url}")'.format(url=url))
-        return
+        #return
 
     if not params:
         mainMenu()
