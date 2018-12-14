@@ -277,6 +277,7 @@ def episodeMenu(params):
 def getValidSession():
     headers = {
             'Origin': 'https://masteranime.es',
+            'Referer': 'https://masteranime.es',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36'
             }
     s = net.QuantumSession(headers)
@@ -316,22 +317,30 @@ def getAuthURL(session, episodeId, server):
 
 def getVideoPlaylist(session, url):
     response = session.GET(url)
+    playlist = None
     if response:
         if response.status_code == 200:
             try:
                 playlistDict = json.loads(response.text)
-            except Exception as ex:
-                msg = 'Error parsing AuthURL JSON message: {0}'.format(ex)
-                logger.error(msg)
-                core.popupError('JSON Error', msg)
-                return
+            except ValueError as ex:
+                try:
+                    playlistStr = parser.parseVideoURL(response.text)
+                    playlist = json.loads(playlistStr)
+                    for i in playlist:
+                        if i.get('src'):
+                            i.update( { 'file': i.get('src') } )
+                except ValueError as ex:
+                    msg = 'Error parsing AuthURL JSON message: {0}'.format(ex)
+                    logger.error(msg)
+                    core.popupError('JSON Error', msg)
+                    return
         else:
             msg = 'HTTP error with AuthURL: {0}'.format(response)
             logger.error(msg)
             core.popupError('HTTP Error', msg)
             return
-
-        playlist = playlistDict.get('playlist')
+        if not playlist:
+            playlist = playlistDict.get('playlist')
         if not playlist:
             msg = 'Missing object "playlist" from response... {0}'.format(playlistDict)
             logger.debug(msg)
@@ -342,7 +351,8 @@ def getVideoPlaylist(session, url):
             sources = i.get('sources')
             if sources:
                 return sources
-            elif i.get('file'):
+            #elif i.get('file'):
+            else:
                 return playlist
         msg = 'Neither "sources" nor "file" found on playlist: {0}'.format(playlist)
         logger.debug(msg)
@@ -358,6 +368,7 @@ def playVideo(params):
     authURL = getAuthURL(sess, episodeId, streamId)
     playlist = getVideoPlaylist(sess, authURL)
 
+    #logger.debug(playlist)
     if not playlist:
         return
     vidURL = selectVidQuality(playlist)
@@ -394,7 +405,7 @@ def selectVidQuality(playlist):
 
     elif fileList:
         if len(fileList) > 1:
-            choice = core.dialog.select('Select the video quality:', fileList)
+            choice = core.dialog.select('Select the video link:', fileList)
             if choice != -1:
                 file = fileList[ choice ]
         elif len(fileList) == 1:

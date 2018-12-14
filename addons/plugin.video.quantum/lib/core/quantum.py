@@ -163,17 +163,23 @@ def displayTextFile(title, filePath):
         logger.error(msg)
         raise FileNotFoundError(msg)
 
-def m3uDownload(url, downloadToDisk=True):
+def m3uDownload(url):
     import lib.utils.net as net
     tempFile = 'playlist-{0}.m3u8'.format(str(time.time()))
-    if downloadToDisk:      # This doesn't work... but why? - lots of work, but might be worth it to avoid fucking buffering/stall
+    options = [ 'Download & Play', 'Stream Online' ]
+    sel = dialog.select('Select the play mode:', options)
+    downloadToDisk = False
+    if sel == 0:
+        downloadToDisk = True
+    if downloadToDisk:              # Works on OSX, but not on windows (demuxer error)
         localPath = getTempFilePath(tempFile, makedir=True)
         localFile = os.path.join( localPath, tempFile )
         data = net.get(url)
         url2 = None
         with open(localFile, 'w') as fw:
             for line in data.text.splitlines():
-                if 'http' in line[0:10]:
+                #if 'http' in line[0:10]:
+                if 'http' in line[0:10] and '.m3u' in line:
                     url2 = line
                     line = re.sub('.*/', '{0}/'.format(localPath), line)
                 fw.write('{0}\n'.format(line))
@@ -195,7 +201,7 @@ def m3uDownload(url, downloadToDisk=True):
                         #urlList.append( '{streamRoot}{indexFile}'.format(streamRoot=streamRoot, indexFile=line) )
                         m3uQueue.put( '{streamRoot}{indexFile}'.format(streamRoot=streamRoot, indexFile=line) )
                         total += 1
-                    # For whatever reason.. I can't play local files using jpg but .ts works fine (iframe stuff?)
+                    # For whatever reason.. I can't play from local files using jpg but .ts works fine
                     fw.write('{0}\n'.format(line.replace('.jpg', '.ts')))
         pd = pDialog
         pd.create('Downloading chunks', 'Loading...')
@@ -211,10 +217,13 @@ def m3uDownload(url, downloadToDisk=True):
             t.start()
             #t.join()
         m3uQueue.join()
+        if pd.iscanceled():
+            pd.close()
+            popupError('Canceled', 'Download canceled')
+            return
         pd.close()
-        #return localFile
-        time.sleep(3)
-        return indexFile
+        return localFile
+        #return indexFile
     else:
         localFile = getTempFilePath(tempFile)
         response = net.get(url)
@@ -232,20 +241,25 @@ def downloaderThread(dstPath, pDlg, total):
     import lib.utils.net as net
     url = m3uQueue.get()
     while url:
+        if pDlg.iscanceled():
+            m3uQueue.task_done()
+            while not m3uQueue.empty():
+                url = m3uQueue.get()
+                m3uQueue.task_done()
+            return
         qsize = m3uQueue.qsize()
-        logger.debug('Initiated thread. Queue size: {0}'.format(qsize))
+        #logger.debug('Initiated thread. Queue size: {0}'.format(qsize))
         #url = m3uQueue.get()
         fileName = re.sub('.*/', '', url).replace('.jpg', '.ts')
         filePath = os.path.join(dstPath, fileName)
         data = net.get(url, timeout=10)
-        pDlg.update(int(qsize), 'Remaining chunks: {0}'.format(qsize))
+        pct = 100 - qsize if qsize < 100 else 0
+        pDlg.update(pct, 'Remaining chunks: {0}'.format(qsize))
         with open(filePath, 'wb') as fw:
             for chunk in data.iter_content(4096):
                 fw.write(chunk)
         m3uQueue.task_done()
         url = m3uQueue.get()
-
-
 
 
 class M3uDownloader(Thread):
@@ -256,7 +270,7 @@ class M3uDownloader(Thread):
 
     def run(self):
         import lib.utils.net as net
-        logger.debug('Initiated thread')
+        #logger.debug('Initiated thread')
         for url in self._urlList:
             fileName = re.sub('.*/', '', url)
             filePath = os.path.join(self._dstPath, fileName)

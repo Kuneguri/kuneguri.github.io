@@ -196,3 +196,20 @@ def parseEpisodeServers(htmldata):
             serverList.append(tag.get('data').strip().lower())
     return serverList
 
+def parseVideoURL(htmldata):
+    parser.setFilter( {
+        'tag' : 'script',
+        'attrs' : [ ( u'type', u'text/javascript' ) ]
+    } )
+    parser.feed(htmldata)
+    for tag in parser.getTags():
+        txt = re.sub('\n', ' ', tag.get('data'))
+        txt = re.search('\$\(document\)\.ready.*function', txt).group()
+        if 'setPlayerHTML5' in txt:
+            m = re.findall('setPlayerHTML5\(([^\)]+)', txt)
+            m = re.search('\[[^\]]+\]', m[0])
+            ret = m.group()
+        else:
+            m = re.search('.*src=["\']([^\'"]+)["\']', txt)
+            ret = '[ { "src": "{link}" } ]'.format(link = m.group(1))
+    return ret
