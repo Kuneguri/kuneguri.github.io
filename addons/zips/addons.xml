@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addons>
-<addon id="plugin.video.quantum" version="0.0.5b" name="Quantum Video Add-on" provider-name="Kuneguri">
+<addon id="plugin.video.quantum" version="0.0.6b" name="Quantum Video Add-on" provider-name="Kuneguri">
 <requires>
   <import addon="xbmc.python" version="2.25.0"/>
   <import addon="script.module.requests" />
@@ -25,7 +25,8 @@
         <screenshot>resources/images/anime02.jpg</screenshot>
         <screenshot>resources/images/anime03.jpg</screenshot>
   </assets>
-  <news>m3u8 download and play "feature"...</news>
+  <news>- m3u8 download and play "feature"...
+        - Minor fixes due to website change...</news>
 </extension>
 </addon>
 </addons>

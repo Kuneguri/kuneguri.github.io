@@ -312,8 +312,13 @@ def getAuthURL(session, episodeId, server):
             msg = 'AuthURL "status": {0}'.format(statusDict.get('status'))
             logger.debug(msg)
             core.popupError('Video Status...', msg)
-        if statusDict.get('value'):
+        if statusDict.get('value') and '<iframe' not in statusDict.get('value'):
             return statusDict.get('value')
+        elif '<iframe' in statusDict.get('value'):
+            valueURL = re.search('src="([^"]+)" ', statusDict.get('value'))
+            if valueURL:
+                valueURL = valueURL.group(1)
+                return valueURL
 
 def getVideoPlaylist(session, url):
     response = session.GET(url)
