@@ -27,9 +27,10 @@ def main(params):
     logger.debug(params)
 
     if params.get('action') == 'test':
-        url = '/Users/carmofl/Library/Application Support/Kodi/userdata/addon_data/plugin.video.quantum/temp/playlist-1543194477.32.m3u8/index-v1-a1.m3u8'
-        core.execbuiltin('PlayMedia("{url}")'.format(url=url))
-        #return
+        vid = core.dialog.browseSingle(type=1, heading='Select the video:', shares='files', mask='.m3u8|.m3u|.avi|.flv|.wmv', defaultt=core.tmpDataPath)
+        if vid != core.tmpDataPath:
+            core.execbuiltin('PlayMedia("{path}")'.format(path=vid))
+        return
 
     if not params:
         mainMenu()
@@ -62,7 +63,7 @@ def mainMenu():
     addTools()
 
     url = core.getURL( { 'action': 'test' } )
-    listItem = core.listItem('Test m3u8')
+    listItem = core.listItem('Play from Temp')
     core.addDirectoryItem(core.handle, url, listItem, False)
 
 def toolsMenu(params):

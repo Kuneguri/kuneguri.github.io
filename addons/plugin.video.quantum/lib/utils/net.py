@@ -16,14 +16,16 @@
 import requests
 import lib.core.quantum as core
 
-userAgent = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36' }
+#userAgent = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36' }
+cfclearance = 'cf_clearance=0581e83c490b225f3b91336e2cc4c167d98490c8-1550737271-1800-150'
+userAgent = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:65.0) Gecko/20100101 Firefox/65.0', 'Cookie' : cfclearance }
 
 logger = core.log.getLogger(__name__)
 
-def get(url, timeout=5, headers=userAgent):
+def get(url, timeout=5, headers=userAgent, proxies={ 'https': 'http://localhost:8080' }):
     logger.debug('--- Network GET request: {0}'.format(url))
     try:
-        resp = requests.get(url, timeout=timeout, headers=headers)
+        resp = requests.get(url, timeout=timeout, headers=headers, proxies=proxies, verify=False)
     except Exception as ex:
         msg = 'Network error accessing: {0} \n {1}'.format(url, ex)
         logger.error(msg)
@@ -32,7 +34,7 @@ def get(url, timeout=5, headers=userAgent):
     return resp
 
 class QuantumSession(object):
-    def __init__(self, headers=None, timeout=10, verify=False, proxies=None):
+    def __init__(self, headers=None, timeout=10, verify=False, proxies={ 'https': 'http://localhost:8080' }):
         self._session = requests.Session()
         self._session.verify = verify
         self._timeout = timeout

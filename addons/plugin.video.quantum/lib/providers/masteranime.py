@@ -278,7 +278,7 @@ def getValidSession():
     headers = {
             'Origin': 'https://masteranime.es',
             'Referer': 'https://masteranime.es',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:65.0) Gecko/20100101 Firefox/65.0'
             }
     s = net.QuantumSession(headers)
     response = s.HEAD(settings._rootURL)

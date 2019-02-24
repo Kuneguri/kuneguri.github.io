@@ -253,12 +253,16 @@ def downloaderThread(dstPath, pDlg, total):
         fileName = re.sub('.*/', '', url).replace('.jpg', '.ts')
         filePath = os.path.join(dstPath, fileName)
         data = net.get(url, timeout=10)
-        pct = 100 - qsize if qsize < 100 else 0
-        pDlg.update(pct, 'Remaining chunks: {0}'.format(qsize))
-        with open(filePath, 'wb') as fw:
-            for chunk in data.iter_content(4096):
-                fw.write(chunk)
-        m3uQueue.task_done()
+        if data and data.status_code == 200:
+            pct = 100 - qsize if qsize < 100 else 0
+            pDlg.update(pct, 'Remaining chunks: {0}'.format(qsize))
+            with open(filePath, 'wb') as fw:
+                for chunk in data.iter_content(4096):
+                    fw.write(chunk)
+            m3uQueue.task_done()
+        else:
+            m3uQueue.task_done()
+            m3uQueue.put(url)
         url = m3uQueue.get()
 
 
